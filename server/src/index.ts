@@ -13,7 +13,7 @@ import redis from 'redis'
 import session from 'express-session'
 import connectRedis from "connect-redis"
 import { __prod__ } from "./constants"
-import { MyContext } from "./types"
+import cors from "cors"
 
 const main = async () => {
     
@@ -35,6 +35,13 @@ const main = async () => {
 
     const RedisStore = connectRedis(session)
     const redisClient = redis.createClient()
+
+    //apply cors middleware to all routes
+    app.use(cors({
+       // "/routeName",
+        origin: "http://localhost:3000",
+        credentials: true,
+    }))
     
     app.use(
         session({
@@ -75,28 +82,22 @@ const main = async () => {
     //     })
     // )
 
-    app.use( (req, _, next) => {
-        if (!req.session) {
-            return next(new Error('oh no')) // handle error
-        }
-        next() // otherwise continue
-    })
-
     const schema = await buildSchema({
         resolvers: [HelloResolver, ProfileResolver, UserResolver],
-            validate: false,
+        validate: false,
     })
 
     const apolloServer = new ApolloServer({ 
             schema,                    
             introspection: true,
             playground: true,
-            context: ({ req, res }): MyContext => ({ req, res }),
+            context: ({ req, res }) => ({ req, res }),
             })    
 
     apolloServer.applyMiddleware({ 
                     app,
-                    cors: false, })
+                    cors: false,
+                })
 
 
     // app.get("/", (_, res) => {
