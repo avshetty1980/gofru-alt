@@ -8,48 +8,43 @@ import { gql, useMutation } from '@apollo/client';
 
 import { UserOutlined, LockOutlined, PoweroffOutlined } from '@ant-design/icons'
 import { Wrapper } from '../components/Wrapper';
+import { useRegisterMutation } from '../generated/graphql';
+import { toErrorMap } from '../utils/toErrorMap';
+import { useRouter } from "next/router"
 
 interface registerProps {
 
 }
 
-const REGISTER_MUT = gql`
-mutation Register($email: String!, $username: String!, $password: String!) {
-  register(
-    options: {
-      email: $email
-      username: $username
-      password: $password
-    }) {
-    errors {
-      field
-      message
-    }
-    user {
-      id
-      username
-    }
-  } 
-}
-`
-
 const Register: React.FC<registerProps> = ({}) => {
-
+    const router = useRouter()
     const [
         register,
         { loading: mutationLoading, error: mutationError },
-    ] = useMutation(REGISTER_MUT)
+    ] = useRegisterMutation()
 
-    const [form] = Form.useForm()
 
-    const onFinish = async (values) => {
+    const onFinish = async (values) => {      
         console.log('Received values of form: ', values)
-        return await register({variables: {
+        const response = await register({variables: {
             email: values.email,
             username: values.username,
             password: values.password
-             } })
+             }            
+            })
+
         
+        if(response.data?.register.errors) {
+          //error needs to be shown to user          
+          console.log("Gql errors",toErrorMap(response.data.register.errors))
+          console.log("response error",response.data.register.errors)    
+      
+        } else if (response.data?.register.user) {
+          //worked
+          console.log("worked")
+          router.push("/")
+        }
+
     };
 
  
@@ -60,6 +55,7 @@ const Register: React.FC<registerProps> = ({}) => {
             className="login-form"
             initialValues={{ email: "", username: "", password: "" }}
             onFinish={onFinish}
+            //validateMessages={validateMessages}            
         >
 
             <Form.Item
@@ -81,8 +77,8 @@ const Register: React.FC<registerProps> = ({}) => {
                 label="Username"
                 name="username"
                 rules={[{
-                     required: true,
-                      message: 'Please input your Username!'
+                    required: true,
+                    message: 'Please input your Username!'
                      }]}
             >
             <Input 
@@ -95,8 +91,8 @@ const Register: React.FC<registerProps> = ({}) => {
                 label="Password"
                 name="password"
                 rules={[{
-                     required: true,
-                      message: 'Please input your Password!'
+                    required: true,
+                    message: 'Please input your Password!'
                     }]}
             >
             <Input

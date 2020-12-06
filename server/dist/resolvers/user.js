@@ -20,6 +20,7 @@ const User_1 = require("../entities/User");
 const type_graphql_1 = require("type-graphql");
 const usernamePasswordInput_1 = require("./usernamePasswordInput");
 const argon2_1 = __importDefault(require("argon2"));
+const typeorm_1 = require("typeorm");
 let FieldError = class FieldError {
 };
 __decorate([
@@ -73,14 +74,23 @@ let UserResolver = class UserResolver {
             };
         }
         const hashedPassword = await argon2_1.default.hash(options.password);
+        let user;
         try {
-            const user = await User_1.User.create({
+            const result = await typeorm_1.getConnection()
+                .createQueryBuilder()
+                .insert()
+                .into(User_1.User)
+                .values({
                 email: options.email,
                 username: options.username,
                 password: hashedPassword
-            }).save();
+            })
+                .returning("*")
+                .execute();
+            user = result.raw[0];
         }
         catch (error) {
+            console.log(error);
             if (error.code === "23505") {
                 return {
                     errors: [{

@@ -2,7 +2,9 @@ import { User } from "../entities/User";
 import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver } from "type-graphql";
 import { UsernamePasswordInput } from "./usernamePasswordInput";
 import argon2 from "argon2"
+import { getConnection } from "typeorm"
 import { MyContext } from "../types";
+import { userInfo } from "os";
 
 @ObjectType()
 class FieldError {
@@ -66,18 +68,25 @@ export class UserResolver {
         }
 
         const hashedPassword = await argon2.hash(options.password)
-        
+        let user
         try {
-
-            const user = await User.create({
-            email: options.email,
-            username: options.username,
-            password: hashedPassword
-            }).save() 
-
+            //User.create({}).save()
+            const result = await getConnection()
+                .createQueryBuilder()
+                .insert()
+                .into(User)
+                .values({
+                    email: options.email,
+                    username: options.username,
+                    password: hashedPassword
+                })
+                .returning("*") 
+                .execute()
+            user = result.raw[0]
         } catch(error) {
             //|| err.detail.includes("already exists")) {
             //duplicate username error
+            console.log(error)
             if(error.code === "23505") {
                 return {
                     errors: [{

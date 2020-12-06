@@ -26,7 +26,7 @@ if(!client) {
 }
 
 
-function MyApp({ Component, pageProps }) {
+function MyApp({ Component, pageProps }: any) {
   return (
   <ApolloProvider client={client}>
     <Component {...pageProps} />
