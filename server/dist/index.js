@@ -39,7 +39,7 @@ const main = async () => {
         credentials: true,
     }));
     app.use(express_session_1.default({
-        name: "cid",
+        name: process.env.COOKIE_NAME,
         store: new RedisStore({
             client: redisClient,
             disableTTL: true,

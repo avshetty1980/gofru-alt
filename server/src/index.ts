@@ -45,7 +45,7 @@ const main = async () => {
     
     app.use(
         session({
-            name: "cid",
+            name: process.env.COOKIE_NAME,
             store: new RedisStore({
                 client: redisClient,
                 disableTTL: true,

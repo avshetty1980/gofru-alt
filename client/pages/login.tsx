@@ -4,52 +4,49 @@ import {
   Input,
   Button,
 } from 'antd'
+import LinkNext from "next/link"
 
 import { UserOutlined, LockOutlined, PoweroffOutlined } from '@ant-design/icons'
 import { Wrapper } from '../components/Wrapper';
-import { MeDocument, MeQuery, useRegisterMutation } from '../generated/graphql';
+import { MeDocument, MeQuery, useLoginMutation } from '../generated/graphql';
 import { toErrorMap } from '../utils/toErrorMap';
 import { useRouter } from "next/router"
 import { withApollo } from "../utils/withApollo"
 
-interface registerProps {
+interface loginProps {
 
 }
 
-const Register: React.FC<registerProps> = ({}) => {
+const Login: React.FC<{}> = ({}) => {
     const router = useRouter()
     const [
-        register,
+        login,
         { loading: mutationLoading, error: mutationError },
-    ] = useRegisterMutation()
+    ] = useLoginMutation()
 
 
     const onFinish = async (values) => {      
         console.log('Received values of form: ', values)
-        const response = await register({
-          variables: {
-            email: values.email,
-            username: values.username,
-            password: values.password
-             },
-          update: (cache, { data }) => {
+        const response = await login({
+            variables: { options: values},
+            update: (cache, { data }) => {
               cache.writeQuery<MeQuery>({
                 query: MeDocument,
                 data: {
                   __typename: "Query",
-                  me: data?.register.user,
+                  me: data?.login.user,
                 },
-              });
-            },
-            })
+              })
+            }
+        })
 
         
-        if(response.data?.register.errors) {
+        if(response.data?.login.errors) {
           //error needs to be shown to user          
-          console.log("Gql errors",toErrorMap(response.data.register.errors))
-          console.log("response error",response.data.register.errors)    
+          console.log("Gql errors",toErrorMap(response.data.login.errors))
+          console.log("response error",response.data.login.errors)    
       
-        } else if (response.data?.register.user) {
+        } else if (response.data?.login.user) {
           //worked
           console.log("worked")
           router.push("/")
@@ -67,7 +64,6 @@ const Register: React.FC<registerProps> = ({}) => {
             onFinish={onFinish}
             //validateMessages={validateMessages}            
         >
-            
             <Form.Item
                 label="Email"
                 name="email"
@@ -81,7 +77,7 @@ const Register: React.FC<registerProps> = ({}) => {
                 placeholder="Email"
             />
             </Form.Item> 
-            
+
             <Form.Item
                 label="Username"
                 name="username"
@@ -118,11 +114,14 @@ const Register: React.FC<registerProps> = ({}) => {
                      className="login-form-button"
                      
                 >
-                    Register
+                    Login
                 </Button>
-               
+                Or 
+                <LinkNext href="/register">
+                <a >register now!</a>
+                </LinkNext>
             </Form.Item>
-           {mutationLoading && <p>Loading...</p>}
+           {mutationLoading && <p>I am Loading...!!!!!</p>}
             {mutationError && <p>Error :( Please try again</p>} 
         </Form>
     </Wrapper>
@@ -130,6 +129,4 @@ const Register: React.FC<registerProps> = ({}) => {
     )
 }
 
-
-
-export default withApollo({ ssr: false }) (Register)
+export default withApollo({ ssr: false }) (Login)

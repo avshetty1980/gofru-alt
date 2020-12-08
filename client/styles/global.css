@@ -18,6 +18,12 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+.navbar {
+  background-color: var(--backgroundColor);
+  padding: 4px;
+  margin-left: auto;
+}
+
 .text-left {
   text-align: left !important;
 }
