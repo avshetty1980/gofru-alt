@@ -4,19 +4,21 @@ require('dotenv').config()
 import express from "express"
 import { ApolloServer } from "apollo-server-express"
 import { buildSchema } from "type-graphql"
+import Redis from "ioredis"
 import { Profile } from "./entities/Profile"
 import { HelloResolver } from "./resolvers/hello"
 import { ProfileResolver } from "./resolvers/profile"
 import { User } from "./entities/User"
 import { UserResolver } from "./resolvers/user"
-import redis from 'redis'
 import session from 'express-session'
 import connectRedis from "connect-redis"
-import { __prod__ } from "./constants"
+import { COOKIE_NAME, __prod__ } from "./constants"
 import cors from "cors"
+//import { sendEmail } from "./utils/sendEmail"
 
 const main = async () => {
-    
+     //send test email
+    //sendEmail("Akshay@Akshay.com", "hello Akshay")
     await createConnection ({
         type: "postgres",
         host: "localhost",
@@ -31,10 +33,14 @@ const main = async () => {
         await conn.runMigrations()
     })
 
+    //to delete Profiles if changing schema
+    //await Profile.delete({})
+
     const app = express()    
 
     const RedisStore = connectRedis(session)
-    const redisClient = redis.createClient()
+    const redis = new Redis()
+
 
     //apply cors middleware to all routes
     app.use(cors({
@@ -45,9 +51,10 @@ const main = async () => {
     
     app.use(
         session({
-            name: process.env.COOKIE_NAME,
+            //name: process.env.COOKIE_NAME,
+            name: COOKIE_NAME,
             store: new RedisStore({
-                client: redisClient,
+                client: redis,
                 disableTTL: true,
                 disableTouch: true
                 }),
@@ -91,7 +98,7 @@ const main = async () => {
             schema,                    
             introspection: true,
             playground: true,
-            context: ({ req, res }) => ({ req, res }),
+            context: ({ req, res }) => ({ req, res, redis }),
             })    
 
     apolloServer.applyMiddleware({ 

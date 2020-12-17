@@ -1,60 +1,73 @@
-import React from 'react'
-import { useApolloClient } from "@apollo/client"
-import NextLink from "next/link"
-import { useLogoutMutation, useMeQuery } from '../generated/graphql';
-import { Button } from 'antd';
+import React from "react";
+import { Button } from "antd";
+import LinkNext from "next/link";
+import { useMeQuery, useLogoutMutation } from "../generated/graphql";
+import { isServer } from "../utils/isServer";
+//import { useRouter } from "next/router";
+import { useApolloClient } from "@apollo/client";
 
-
-interface NavBarProps {
-
-}
+interface NavBarProps {}
 
 export const NavBar: React.FC<NavBarProps> = ({}) => {
+  // const router = useRouter();
+  const [logout, { loading: logoutFetching }] = useLogoutMutation();
+  const apolloClient = useApolloClient();
+  
+  //do not run on Next.js server as logged in user not required for SEO
+  //can check if on server if window variable is defined
+  const { data, loading } = useMeQuery({
+    skip: isServer(),
+  });
 
-    const [logout, { loading: logoutFetching }] = useLogoutMutation()
-    const apolloClient = useApolloClient()
-    const { data, loading} = useMeQuery()
+  let body = null;
 
-    let body = null
-
-    //data is loading
-    if (loading) {
-        body = null
-        //user not logged in
-    } else if(!data?.me) {
-        body = (
-        <>
-        <NextLink href="/login">
-            <a>Login</a>
-        </ NextLink>
-
-        <NextLink href="/register">
-            <a>Register</a>
-        </NextLink>
-        </>
-        )
-        //user is logged in
-    } else {
-        body = (
-        <div>
-        <div>Current user is: {data.me.username}</div>
-        <Button onClick={async () => {
-            await logout()
-            await apolloClient.resetStore()
-            }} 
-            type="link"
-            loading={logoutFetching}
+  // data is loading
+  if (loading) {
+    // user not logged in
+  } else if (!data?.me) {
+    body = (
+      <>
+        <LinkNext href="/login">
+          <a>login</a>
+        </LinkNext>
+        <LinkNext href="/register">
+          <a>register</a>
+        </LinkNext>
+      </>
+    );
+    // user is logged in
+  } else {
+    body = (
+      <div >
+        <LinkNext href="/create-post">
+          <Button type="link">
+            create post
+          </Button>
+        </LinkNext>
+        <div>{data.me.username}</div>
+        <Button
+          onClick={async () => {
+            await logout();
+            await apolloClient.resetStore();
+          }}
+          loading={logoutFetching}
+          type="link"
         >
-            Log Out
+          logout
         </Button>
+      </div>
+    );
+  }
 
-        </div>
-        )
-    }
-        return (
-            <div className="navbar">
-                
-                {body} Navbar
-            </div>
-        );
-}
+  return (
+      <>    
+        <LinkNext href="/">
+          <a>
+            <h1>Gofru-alt</h1>
+          </a>
+        </LinkNext>
+        <div >{body}</div>
+    </>
+      
+  );
+};

@@ -1,4 +1,5 @@
 import { withApollo } from "../utils/withApollo"
+
 import { NavBar } from "../components/NavBar" 
 import { useProfilesQuery } from "../generated/graphql";
 
@@ -9,14 +10,19 @@ return (
   <NavBar />
   <br />
   <div>
-    Hello Akshay Shetty
+    Hello Akshay Shetty from Index page
   </div>
   <br />
-  {!data ? <div>Loading...</div> : data.profiles.map( profile => 
-    <div key={profile.id}>{profile.name}</div>
-    )}
+  {!data ? 
+    <div>Loading...</div> :
+     data.profiles.map( profile => 
+      <div key={profile.id}>
+        {profile.firstname}
+      </div>
+      )
+  }
 </>
 )
 }
 
-export default withApollo({ ssr: true }) (Index);
+export default withApollo({ ssr: true}) (Index)

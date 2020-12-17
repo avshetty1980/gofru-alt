@@ -1,6 +1,7 @@
 import 'antd/dist/antd.css'
 import '../styles/vars.css'
 import '../styles/global.css'
+//import { withApollo } from 'next-apollo'
 
 // const client = new ApolloClient({
 //   link: new HttpLink({
@@ -11,16 +12,19 @@ import '../styles/global.css'
 //   cache: new InMemoryCache(),
 
 // });
-// if(!client) {
-//   console.log(client)
+// if(client) {
+//   console.log("client")
 // } else {
 //   console.log("no client")
 // }
 
 
 function MyApp({ Component, pageProps }: any) {
+   //const client = useApollo()
   return (
+    // <ApolloProvider client={client}>
     <Component {...pageProps} />
+    // </ApolloProvider>
   
   )
 }

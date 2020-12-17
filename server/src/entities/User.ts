@@ -5,8 +5,10 @@ import {
     Column,
     CreateDateColumn,
      UpdateDateColumn,
-      BaseEntity
+      BaseEntity,
+      OneToMany
     } from "typeorm";
+import { Profile } from "./Profile";
 
 @ObjectType()
 @Entity()
@@ -14,15 +16,7 @@ export class User extends BaseEntity {
 
     @Field()
     @PrimaryGeneratedColumn()
-    id!: number
-
-    @Field(() => String)
-    @CreateDateColumn()
-    createdAt: Date
-
-    @Field(() => String)
-    @UpdateDateColumn()
-    updatedAt: Date
+    id!: number   
 
     @Field()
     @Column({ unique: true })
@@ -34,5 +28,16 @@ export class User extends BaseEntity {
 
     @Column()
     password!: string
+    
+    @OneToMany(() => Profile, profile => profile.creator)
+    profiles: Profile[];
+
+    @Field(() => String)
+    @CreateDateColumn()
+    createdAt: Date
+
+    @Field(() => String)
+    @UpdateDateColumn()
+    updatedAt: Date
 
 }

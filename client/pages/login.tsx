@@ -6,12 +6,14 @@ import {
 } from 'antd'
 import LinkNext from "next/link"
 
-import { UserOutlined, LockOutlined, PoweroffOutlined } from '@ant-design/icons'
+import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import { Wrapper } from '../components/Wrapper';
 import { MeDocument, MeQuery, useLoginMutation } from '../generated/graphql';
 import { toErrorMap } from '../utils/toErrorMap';
 import { useRouter } from "next/router"
+//import { initializeApollo } from "../utils/useApolloClient"
 import { withApollo } from "../utils/withApollo"
+
 
 interface loginProps {
 
@@ -19,6 +21,7 @@ interface loginProps {
 
 const Login: React.FC<{}> = ({}) => {
     const router = useRouter()
+
     const [
         login,
         { loading: mutationLoading, error: mutationError },
@@ -28,7 +31,8 @@ const Login: React.FC<{}> = ({}) => {
     const onFinish = async (values) => {      
         console.log('Received values of form: ', values)
         const response = await login({
-            variables: { options: values},
+            //variables: {  options: values },
+            variables: values,
             update: (cache, { data }) => {
               cache.writeQuery<MeQuery>({
                 query: MeDocument,
@@ -37,6 +41,7 @@ const Login: React.FC<{}> = ({}) => {
                   me: data?.login.user,
                 },
               })
+              //cache.evict({ fieldName: "profiles:{}" });
             }
         })
 
@@ -48,11 +53,11 @@ const Login: React.FC<{}> = ({}) => {
       
         } else if (response.data?.login.user) {
           //worked
-          console.log("worked")
+          //console.log("worked")
           router.push("/")
         }
 
-    };
+    }
 
  
     return (
@@ -60,11 +65,12 @@ const Login: React.FC<{}> = ({}) => {
         <Form
             name="login"
             className="login-form"
-            initialValues={{ username: "", password: "" }}
+            initialValues={{ usernameOrEmail: "", password: "" }}
+            //initialValues={{ username: "", email: "", password: "" }}
             onFinish={onFinish}
             //validateMessages={validateMessages}            
         >
-            <Form.Item
+            {/* <Form.Item
                 label="Email"
                 name="email"
                 rules={[{
@@ -76,11 +82,11 @@ const Login: React.FC<{}> = ({}) => {
                 prefix={<UserOutlined className="site-form-item-icon" />}
                 placeholder="Email"
             />
-            </Form.Item> 
+            </Form.Item>  */}
 
             <Form.Item
-                label="Username"
-                name="username"
+                label="Username Or Email"
+                name="usernameOrEmail"
                 rules={[{
                     required: true,                    
                     message: 'Please input your Username!'
@@ -88,7 +94,7 @@ const Login: React.FC<{}> = ({}) => {
             >
             <Input 
                 prefix={<UserOutlined className="site-form-item-icon" />}
-                placeholder="Username"
+                placeholder="Username Or Email"
             />
             </Form.Item>            
 
@@ -107,6 +113,12 @@ const Login: React.FC<{}> = ({}) => {
             />
             </Form.Item>
 
+            <aside>
+            <LinkNext href="/forgot-password">
+             <a>Forgot Password?</a>
+             </LinkNext>
+             </aside>
+
             <Form.Item>
                 <Button
                      type="primary"
@@ -122,11 +134,11 @@ const Login: React.FC<{}> = ({}) => {
                 </LinkNext>
             </Form.Item>
            {mutationLoading && <p>I am Loading...!!!!!</p>}
-            {mutationError && <p>Error :( Please try again</p>} 
+                {mutationError && <p>Error :( Please try again</p>} 
         </Form>
     </Wrapper>
 
     )
 }
 
-export default withApollo({ ssr: false }) (Login)
+export default withApollo({ ssr: true }) (Login)

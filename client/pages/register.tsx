@@ -27,11 +27,7 @@ const Register: React.FC<registerProps> = ({}) => {
     const onFinish = async (values) => {      
         console.log('Received values of form: ', values)
         const response = await register({
-          variables: {
-            email: values.email,
-            username: values.username,
-            password: values.password
-             },
+          variables: { options: values },
           update: (cache, { data }) => {
               cache.writeQuery<MeQuery>({
                 query: MeDocument,
@@ -61,9 +57,9 @@ const Register: React.FC<registerProps> = ({}) => {
     return (
         <Wrapper>
         <Form
-            name="login"
-            className="login-form"
-            initialValues={{ username: "", password: "" }}
+            name="register"
+            className="register-form"
+            initialValues={{ email: "", username: "", password: "" }}
             onFinish={onFinish}
             //validateMessages={validateMessages}            
         >
@@ -115,7 +111,7 @@ const Register: React.FC<registerProps> = ({}) => {
                 <Button
                      type="primary"
                      htmlType="submit"
-                     className="login-form-button"
+                     className="register-form-button"
                      
                 >
                     Register
@@ -132,4 +128,4 @@ const Register: React.FC<registerProps> = ({}) => {
 
 
 
-export default withApollo({ ssr: false }) (Register)
+export default withApollo({ ssr: true }) (Register)

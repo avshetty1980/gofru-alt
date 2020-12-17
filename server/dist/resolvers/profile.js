@@ -15,23 +15,48 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProfileResolver = void 0;
 const Profile_1 = require("../entities/Profile");
 const type_graphql_1 = require("type-graphql");
+const isAuth_1 = require("../middleware/isAuth");
+let ProfileInput = class ProfileInput {
+};
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", String)
+], ProfileInput.prototype, "title", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", String)
+], ProfileInput.prototype, "firstname", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", String)
+], ProfileInput.prototype, "lastname", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", String)
+], ProfileInput.prototype, "dob", void 0);
+ProfileInput = __decorate([
+    type_graphql_1.InputType()
+], ProfileInput);
 let ProfileResolver = class ProfileResolver {
-    profiles() {
-        return Profile_1.Profile.find();
+    async profiles() {
+        return await Profile_1.Profile.find();
     }
     profile(id) {
         return Profile_1.Profile.findOne(id);
     }
-    async createProfile(name) {
-        return Profile_1.Profile.create({ name }).save();
+    async createProfile(input, { req }) {
+        return Profile_1.Profile.create({
+            ...input,
+            creatorId: req.session.userId,
+        }).save();
     }
-    async updateProfile(id, name) {
-        const profile = await Profile_1.Profile.findOne({ id });
+    async updateProfile(id, firstname) {
+        const profile = await Profile_1.Profile.findOne(id);
         if (!profile) {
             return null;
         }
-        if (typeof name !== "undefined") {
-            await Profile_1.Profile.update({ id }, { name });
+        if (typeof firstname !== "undefined") {
+            await Profile_1.Profile.update({ id }, { firstname });
         }
         return profile;
     }
@@ -60,15 +85,17 @@ __decorate([
 ], ProfileResolver.prototype, "profile", null);
 __decorate([
     type_graphql_1.Mutation(() => Profile_1.Profile),
-    __param(0, type_graphql_1.Arg("name")),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
+    __param(0, type_graphql_1.Arg("input")),
+    __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [ProfileInput, Object]),
     __metadata("design:returntype", Promise)
 ], ProfileResolver.prototype, "createProfile", null);
 __decorate([
     type_graphql_1.Mutation(() => Profile_1.Profile),
     __param(0, type_graphql_1.Arg("id")),
-    __param(1, type_graphql_1.Arg("name", () => String, { nullable: true })),
+    __param(1, type_graphql_1.Arg("firstname", () => String, { nullable: true })),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, String]),
     __metadata("design:returntype", Promise)

@@ -3,6 +3,6 @@ query Profiles {
     id
     createdAt
     updatedAt
-    name
+    firstname
   }
 }
