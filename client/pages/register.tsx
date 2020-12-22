@@ -5,7 +5,7 @@ import {
   Button,
 } from 'antd'
 
-import { UserOutlined, LockOutlined, PoweroffOutlined } from '@ant-design/icons'
+import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import { Wrapper } from '../components/Wrapper';
 import { MeDocument, MeQuery, useRegisterMutation } from '../generated/graphql';
 import { toErrorMap } from '../utils/toErrorMap';

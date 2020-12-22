@@ -22,6 +22,12 @@ export type Query = {
 };
 
 
+export type QueryProfilesArgs = {
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
+};
+
+
 export type QueryProfileArgs = {
   id: Scalars['Float'];
 };
@@ -158,6 +164,19 @@ export type ChangePasswordMutation = (
   ) }
 );
 
+export type CreateProfileMutationVariables = Exact<{
+  input: ProfileInput;
+}>;
+
+
+export type CreateProfileMutation = (
+  { __typename?: 'Mutation' }
+  & { createProfile: (
+    { __typename?: 'Profile' }
+    & Pick<Profile, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'dob' | 'points' | 'firstname' | 'lastname'>
+  ) }
+);
+
 export type ForgotPasswordMutationVariables = Exact<{
   email: Scalars['String'];
 }>;
@@ -214,14 +233,17 @@ export type MeQuery = (
   )> }
 );
 
-export type ProfilesQueryVariables = Exact<{ [key: string]: never; }>;
+export type ProfilesQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  cursor?: Maybe<Scalars['String']>;
+}>;
 
 
 export type ProfilesQuery = (
   { __typename?: 'Query' }
   & { profiles: Array<(
     { __typename?: 'Profile' }
-    & Pick<Profile, 'id' | 'createdAt' | 'updatedAt' | 'firstname'>
+    & Pick<Profile, 'firstname' | 'id' | 'createdAt' | 'updatedAt'>
   )> }
 );
 
@@ -281,6 +303,45 @@ export function useChangePasswordMutation(baseOptions?: Apollo.MutationHookOptio
 export type ChangePasswordMutationHookResult = ReturnType<typeof useChangePasswordMutation>;
 export type ChangePasswordMutationResult = Apollo.MutationResult<ChangePasswordMutation>;
 export type ChangePasswordMutationOptions = Apollo.BaseMutationOptions<ChangePasswordMutation, ChangePasswordMutationVariables>;
+export const CreateProfileDocument = gql`
+    mutation CreateProfile($input: ProfileInput!) {
+  createProfile(input: $input) {
+    id
+    createdAt
+    updatedAt
+    title
+    dob
+    points
+    firstname
+    lastname
+  }
+}
+    `;
+export type CreateProfileMutationFn = Apollo.MutationFunction<CreateProfileMutation, CreateProfileMutationVariables>;
+
+/**
+ * __useCreateProfileMutation__
+ *
+ * To run a mutation, you first call `useCreateProfileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateProfileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createProfileMutation, { data, loading, error }] = useCreateProfileMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateProfileMutation(baseOptions?: Apollo.MutationHookOptions<CreateProfileMutation, CreateProfileMutationVariables>) {
+        return Apollo.useMutation<CreateProfileMutation, CreateProfileMutationVariables>(CreateProfileDocument, baseOptions);
+      }
+export type CreateProfileMutationHookResult = ReturnType<typeof useCreateProfileMutation>;
+export type CreateProfileMutationResult = Apollo.MutationResult<CreateProfileMutation>;
+export type CreateProfileMutationOptions = Apollo.BaseMutationOptions<CreateProfileMutation, CreateProfileMutationVariables>;
 export const ForgotPasswordDocument = gql`
     mutation ForgotPassword($email: String!) {
   forgotPassword(email: $email)
@@ -438,12 +499,12 @@ export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
 export const ProfilesDocument = gql`
-    query Profiles {
-  profiles {
+    query Profiles($limit: Int!, $cursor: String) {
+  profiles(limit: $limit, cursor: $cursor) {
+    firstname
     id
     createdAt
     updatedAt
-    firstname
   }
 }
     `;
@@ -460,10 +521,12 @@ export const ProfilesDocument = gql`
  * @example
  * const { data, loading, error } = useProfilesQuery({
  *   variables: {
+ *      limit: // value for 'limit'
+ *      cursor: // value for 'cursor'
  *   },
  * });
  */
-export function useProfilesQuery(baseOptions?: Apollo.QueryHookOptions<ProfilesQuery, ProfilesQueryVariables>) {
+export function useProfilesQuery(baseOptions: Apollo.QueryHookOptions<ProfilesQuery, ProfilesQueryVariables>) {
         return Apollo.useQuery<ProfilesQuery, ProfilesQueryVariables>(ProfilesDocument, baseOptions);
       }
 export function useProfilesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProfilesQuery, ProfilesQueryVariables>) {

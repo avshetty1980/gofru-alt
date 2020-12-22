@@ -16,6 +16,7 @@ exports.ProfileResolver = void 0;
 const Profile_1 = require("../entities/Profile");
 const type_graphql_1 = require("type-graphql");
 const isAuth_1 = require("../middleware/isAuth");
+const typeorm_1 = require("typeorm");
 let ProfileInput = class ProfileInput {
 };
 __decorate([
@@ -38,8 +39,19 @@ ProfileInput = __decorate([
     type_graphql_1.InputType()
 ], ProfileInput);
 let ProfileResolver = class ProfileResolver {
-    async profiles() {
-        return await Profile_1.Profile.find();
+    async profiles(limit, cursor) {
+        const realLimit = Math.min(50, limit);
+        const qb = typeorm_1.getConnection()
+            .getRepository(Profile_1.Profile)
+            .createQueryBuilder("profileQuery")
+            .orderBy('"createdAt"', "DESC")
+            .take(realLimit);
+        if (cursor) {
+            qb.where('"createdAt" < :cursor', {
+                cursor: new Date(parseInt(cursor))
+            });
+        }
+        return qb.getMany();
     }
     profile(id) {
         return Profile_1.Profile.findOne(id);
@@ -72,8 +84,10 @@ let ProfileResolver = class ProfileResolver {
 };
 __decorate([
     type_graphql_1.Query(() => [Profile_1.Profile]),
+    __param(0, type_graphql_1.Arg("limit", () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Arg("cursor", () => String, { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], ProfileResolver.prototype, "profiles", null);
 __decorate([

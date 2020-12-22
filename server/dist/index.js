@@ -19,19 +19,20 @@ const express_session_1 = __importDefault(require("express-session"));
 const connect_redis_1 = __importDefault(require("connect-redis"));
 const constants_1 = require("./constants");
 const cors_1 = __importDefault(require("cors"));
+const path_1 = __importDefault(require("path"));
 const main = async () => {
-    await typeorm_1.createConnection({
+    const conn = await typeorm_1.createConnection({
         type: "postgres",
         host: "localhost",
         username: process.env.POSTGRES_USERNAME,
         password: process.env.POSTGRES_PASS,
         database: "gofru",
         synchronize: true,
+        migrations: [path_1.default.join(__dirname, "./migrations/*")],
         logging: true,
         entities: [Profile_1.Profile, User_1.User]
-    }).then(async (conn) => {
-        await conn.runMigrations();
     });
+    await conn.runMigrations();
     const app = express_1.default();
     const RedisStore = connect_redis_1.default(express_session_1.default);
     const redis = new ioredis_1.default();

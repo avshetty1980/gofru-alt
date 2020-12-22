@@ -1,7 +1,8 @@
 import { Profile } from "../entities/Profile"
-import { Arg, Ctx, Field, InputType, Mutation, Query, Resolver, UseMiddleware } from "type-graphql"
+import { Arg, Ctx, Field, InputType, Int, Mutation, Query, Resolver, UseMiddleware } from "type-graphql"
 import { MyContext } from "../types"
 import { isAuth } from "../middleware/isAuth"
+import { getConnection } from "typeorm"
 
 @InputType()
 class ProfileInput {  
@@ -18,8 +19,28 @@ class ProfileInput {
 @Resolver()
 export class ProfileResolver {
     @Query(() => [Profile])
-        async profiles(): Promise<Profile[]> {
-            return await Profile.find()
+        async profiles(
+            @Arg("limit", () => Int) limit: number,
+            // @Arg("offset") offset: number
+            //set nullable true as cursor will be null after first fetch
+            @Arg("cursor", () => String, {nullable: true}) cursor: string | null
+        ): Promise<Profile[]> {
+            const realLimit = Math.min(50, limit )
+           // return await Profile.find()
+            
+           const qb =  getConnection() 
+                .getRepository(Profile)
+                .createQueryBuilder("profileQuery")                
+                .orderBy('"createdAt"', "DESC")
+                .take(realLimit)
+
+            if(cursor) {
+                qb.where('"createdAt" < :cursor', {
+                     cursor: new Date(parseInt(cursor))
+                 })
+            }
+            
+            return qb.getMany()
         }
 
     @Query(() => Profile, { nullable: true })

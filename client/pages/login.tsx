@@ -21,6 +21,7 @@ interface loginProps {
 
 const Login: React.FC<{}> = ({}) => {
     const router = useRouter()
+    // console.log(router)
 
     const [
         login,
@@ -52,9 +53,15 @@ const Login: React.FC<{}> = ({}) => {
           console.log("response error",response.data.login.errors)    
       
         } else if (response.data?.login.user) {
-          //worked
-          //console.log("worked")
-          router.push("/")
+            if(typeof router.query.next === "string"){
+                router.push(router.query.next)
+
+            }else {
+                //worked
+                //console.log("worked")
+                router.push("/")
+            }
+          
         }
 
     }

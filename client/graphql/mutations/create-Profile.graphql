@@ -1,0 +1,12 @@
+mutation CreateProfile($input: ProfileInput!) {
+  createProfile(input: $input) {
+    id
+    createdAt
+    updatedAt
+    title
+    dob
+    points
+    firstname
+    lastname
+  }
+}

@@ -1,8 +1,8 @@
-query Profiles {
-  profiles {
+query Profiles($limit: Int!, $cursor: String) {
+  profiles(limit: $limit, cursor: $cursor) {
+    firstname
     id
     createdAt
     updatedAt
-    firstname
   }
 }

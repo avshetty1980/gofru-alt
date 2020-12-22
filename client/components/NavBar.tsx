@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "antd";
+import { Breadcrumb, Button } from "antd";
 import LinkNext from "next/link";
 import { useMeQuery, useLogoutMutation } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
@@ -39,12 +39,15 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
   } else {
     body = (
       <div >
-        <LinkNext href="/create-post">
+        {/* <LinkNext href="/create-post">
           <Button type="link">
             create post
           </Button>
-        </LinkNext>
-        <div>{data.me.username}</div>
+        </LinkNext> */}
+        <Breadcrumb style={{ margin: '16px 0' }}>
+              <Breadcrumb.Item>User</Breadcrumb.Item>
+              <Breadcrumb.Item>{data.me.username}</Breadcrumb.Item>
+        </Breadcrumb>
         <Button
           onClick={async () => {
             await logout();

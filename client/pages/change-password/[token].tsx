@@ -1,4 +1,4 @@
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { UserOutlined } from '@ant-design/icons';
 import { Input, Button, Form } from 'antd';
 import { NextPage } from 'next';
 import React, { useState } from 'react'
@@ -10,10 +10,10 @@ import { toErrorMap } from '../../utils/toErrorMap';
 import { withApollo } from "../../utils/withApollo";
 
 //token props coming from getinitialprops
-const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
+const ChangePassword: NextPage = () => {
 
         const router = useRouter();
-
+        //console.log(router.query)
         const [
             changePassword,
             { loading: mutationLoading, error: mutationError },
@@ -26,7 +26,8 @@ const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
         const response = await changePassword({
             variables: {
                 newPassword: values.newPassword,
-                token,
+                token: typeof router.query.token === "string" ?
+                        router.query.token : "" ,
             },          
         })
 
@@ -110,10 +111,10 @@ const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
 
 //could use getServerProps instead to run on server
 //takes any query parameter and passes to the component
-ChangePassword.getInitialProps = ({query}) => {
-    return {
-        token: query.token as string
-    }
-}
+// ChangePassword.getInitialProps = ({query}) => {
+//     return {
+//         token: query.token as string
+//     }
+// }
 
 export default withApollo({ ssr: false }) (ChangePassword)

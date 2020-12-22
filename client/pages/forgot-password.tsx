@@ -22,9 +22,9 @@ const ForgotPassword: React.FC<{}> = ({}) => {
         <Wrapper>        
         <div>
             {complete ?
-         <div>
-             If an account with that email exists, we sent you an email
-             </div> : (
+            <div>
+                If an account with that email exists, we sent you an email
+            </div> : (
         <Form
             name="login"
             className="login-form"

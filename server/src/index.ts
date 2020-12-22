@@ -14,24 +14,26 @@ import session from 'express-session'
 import connectRedis from "connect-redis"
 import { COOKIE_NAME, __prod__ } from "./constants"
 import cors from "cors"
+import path from "path"
 //import { sendEmail } from "./utils/sendEmail"
 
 const main = async () => {
      //send test email
     //sendEmail("Akshay@Akshay.com", "hello Akshay")
-    await createConnection ({
+    const conn = await createConnection ({
         type: "postgres",
         host: "localhost",
         username: process.env.POSTGRES_USERNAME,
         password: process.env.POSTGRES_PASS,
         database: "gofru",
         synchronize: true,
+        migrations: [path.join(__dirname, "./migrations/*")],
         logging: true,
         entities: [Profile, User]         
         
-    }).then(async conn => {
-        await conn.runMigrations()
     })
+    await conn.runMigrations()
+    
 
     //to delete Profiles if changing schema
     //await Profile.delete({})

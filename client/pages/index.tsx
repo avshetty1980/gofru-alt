@@ -1,13 +1,20 @@
 import { withApollo } from "../utils/withApollo"
 
-import { NavBar } from "../components/NavBar" 
+import LinkNext from "next/link"
 import { useProfilesQuery } from "../generated/graphql";
+import { LayoutTemplate } from "../components/LayoutTemplate";
 
 const Index = () => {
-  const { data } = useProfilesQuery()
+  const { data } = useProfilesQuery({
+    variables: {
+      limit: 10,
+    },
+  })
 return (
-<>
-  <NavBar />
+<LayoutTemplate>
+  <LinkNext href="/create-profile">
+  <a>Create Profile</a>
+  </LinkNext>
   <br />
   <div>
     Hello Akshay Shetty from Index page
@@ -21,7 +28,7 @@ return (
       </div>
       )
   }
-</>
+</LayoutTemplate>
 )
 }
 
